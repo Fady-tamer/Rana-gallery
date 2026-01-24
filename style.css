@@ -283,6 +283,30 @@ body {
     color: yellow;
 }
 
+/* --- Star Rating Styles --- */
+.stars {
+    display: inline-block;
+}
+
+.stars i {
+    cursor: pointer;
+    color: #ccc;
+    /* Default Gray (Empty) */
+    font-size: 1rem;
+    transition: color 0.2s;
+    margin-right: 2px;
+}
+
+.stars i.filled {
+    color: #ffc107;
+    /* Gold (Filled) */
+}
+
+.stars i:hover {
+    color: #ffdb4d;
+    /* Light gold on hover */
+}
+
 
 /* --- Bottom Layout (Split) --- */
 .bottom-layout {
