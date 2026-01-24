@@ -1,84 +1,80 @@
-// --- 1. Global Helper Functions (Data Management) ---
+// --- 1. FIREBASE CONFIGURATION ---
+const firebaseConfig = {
+    apiKey: "AIzaSyA69HCP3GyJ9Vk3uC8BmFeLWruiewFgyEM",
+    authDomain: "artist-portfolio-rana-gallery.firebaseapp.com",
+    projectId: "artist-portfolio-rana-gallery",
+    storageBucket: "artist-portfolio-rana-gallery.firebasestorage.app",
+    messagingSenderId: "954030266440",
+    appId: "1:954030266440:web:4aaca0bd210b804f80607d"
+};
 
-function getCards() {
-    const stored = localStorage.getItem('cards');
-    if (!stored) return [];
-    try {
-        const parsed = JSON.parse(stored);
-        // Safety check for old data
-        if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === 'string') {
-            return []; 
-        }
-        return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
-        return [];
-    }
-}
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const collectionName = "cards";
 
-function saveCards(cards) {
-    localStorage.setItem('cards', JSON.stringify(cards));
-}
-
-// --- 2. LOGIC: Add Card Page (addCard.html) ---
+// --- 2. LOGIC: Add Card Page ---
 const addForm = document.querySelector('.add-card-form');
 
 if (addForm) {
-    addForm.addEventListener('submit', (e) => {
+    addForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        const submitBtn = addForm.querySelector('button');
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Uploading...";
 
         const fileInput = document.getElementById('card-img');
         const rawTitle = document.getElementById('card-header').value;
         const file = fileInput.files[0];
 
+        // VALIDATION
         if (!file) {
             alert("Please select an image!");
+            submitBtn.disabled = false; submitBtn.innerText = "Add Card";
+            return;
+        }
+        // Firestore Documents have a 1MB limit. We limit images to 700KB to be safe.
+        if (file.size > 700 * 1024) {
+            alert("Image too large! For this free database, please use images under 700KB.");
+            submitBtn.disabled = false; submitBtn.innerText = "Add Card";
             return;
         }
 
-        if (file.size > 5 * 1024 * 1024) {
-            alert("Image is too large! Please choose an image under 5MB.");
-            return;
-        }
-
-        // --- FORMAT TITLE HERE ---
-        // 1. charAt(0).toUpperCase() -> Makes first letter Big
-        // 2. slice(1).toLowerCase() -> Makes the rest small
         const formattedTitle = rawTitle.charAt(0).toUpperCase() + rawTitle.slice(1).toLowerCase();
 
+        // Convert Image to Base64
         const reader = new FileReader();
+        reader.readAsDataURL(file);
 
-        reader.onload = function(event) {
+        reader.onload = async function(event) {
             const imgDataUrl = event.target.result;
 
             const newCard = {
-                id: Date.now(), 
-                img: imgDataUrl, 
-                title: formattedTitle, // Use the new formatted title
+                createdAt: Date.now(), // Use this to sort by newest
+                img: imgDataUrl,
+                title: formattedTitle,
                 tags: document.getElementById('card-tags').value.split('-').map(t => t.trim()).filter(t => t),
                 desc: document.getElementById('card-description').value,
-                category: document.getElementById('category').value 
+                category: document.getElementById('category').value
             };
 
             try {
-                const cards = getCards();
-                cards.push(newCard);
-                saveCards(cards);
-
-                alert('Card Added Successfully!');
-                addForm.reset();
+                // SAVE TO CLOUD (Async operation)
+                await db.collection(collectionName).add(newCard);
+                
+                alert('Card Published to Cloud Successfully!');
+                window.location.href = 'index.html';
             } catch (error) {
-                alert("Storage is full! Try deleting old cards or using smaller images.");
-                console.error(error);
+                console.error("Error adding document: ", error);
+                alert("Error saving to cloud: " + error.message);
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Add Card";
             }
         };
-
-        reader.readAsDataURL(file);
     });
 }
 
-// --- 3. LOGIC: Index Page (index.html) ---
-
-// 3a. Map Categories to HTML Elements
+// --- 3. LOGIC: Index Page (Load from Cloud) ---
 const gridMap = {
     "Post": document.querySelector('.card-grid'),
     "Artist'sStory": document.querySelector('.ArtistsStory-grid'),
@@ -87,139 +83,153 @@ const gridMap = {
     "ColorsPallets": document.querySelector('.ColorsPallets-grid')
 };
 
-// Check if we are on the index page
+// Setup Search & Filter
+const searchInput = document.querySelector('.search-bar input');
+const filterSelect = document.querySelector('.filter-bar select');
+let allCardsCache = []; // Store cards here so we don't re-download them for every search
+
 if (gridMap["Post"]) {
-    
-    // Selectors for Search and Filter
-    const searchInput = document.querySelector('.search-bar input');
-    const filterSelect = document.querySelector('.filter-bar select');
+    loadCards(); // Start the download
 
-    // 1. Initial Render
-    const allCards = getCards();
-    populateTagDropdown(allCards); // Fill the dropdown with your tags
-    renderGrids(allCards);         // Show all cards
-
-    // 2. Event Listeners (Run applyFilters whenever you type or select)
     if (searchInput) searchInput.addEventListener('input', applyFilters);
     if (filterSelect) filterSelect.addEventListener('change', applyFilters);
+}
 
-    // 3. The Unified Filter Logic
-    function applyFilters() {
-        const searchTerm = searchInput.value.toLowerCase().trim();
-        const selectedTag = filterSelect.value;
-        const cards = getCards();
+// Async Function to Download Cards
+async function loadCards() {
+    try {
+        // Show loading state (optional)
+        // gridMap["Post"].innerHTML = '<p>Loading art from cloud...</p>';
 
-        const filteredCards = cards.filter(card => {
-            // Check 1: Does title match search? (OR does a tag match the search text?)
-            const matchesSearch = card.title.toLowerCase().includes(searchTerm) || 
-                                  card.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+        const snapshot = await db.collection(collectionName).orderBy('createdAt', 'desc').get();
+        
+        allCardsCache = snapshot.docs.map(doc => ({
+            id: doc.id, // Firestore generates a unique ID string
+            ...doc.data()
+        }));
 
-            // Check 2: Does the card have the selected tag? (Ignore if "All" is selected)
-            const matchesTag = selectedTag === 'All' || card.tags.includes(selectedTag);
+        populateTagDropdown(allCardsCache);
+        renderGrids(allCardsCache);
 
-            return matchesSearch && matchesTag;
-        });
-
-        renderGrids(filteredCards);
-    }
-
-    // 4. Fill Dropdown with Unique Tags
-    function populateTagDropdown(cards) {
-        if (!filterSelect) return;
-
-        // Get all tags from all cards, flatten them into one list
-        const allTags = cards.flatMap(card => card.tags);
-        // Remove duplicates using Set
-        const uniqueTags = [...new Set(allTags)];
-
-        // Clear existing options except "All"
-        filterSelect.innerHTML = '<option value="All">All Tags</option>';
-
-        // Add an option for each unique tag
-        uniqueTags.forEach(tag => {
-            const option = document.createElement('option');
-            option.value = tag;
-            option.textContent = tag; // Capitalize first letter if you want
-            filterSelect.appendChild(option);
-        });
+    } catch (error) {
+        console.error("Error getting documents: ", error);
+        gridMap["Post"].innerHTML = '<p>Error loading cards. Check console.</p>';
     }
 }
 
-// 3b. The Reusable Render Function
-function renderGrids(cardsToRender) {
-    // Clear ALL grids first
-    Object.values(gridMap).forEach(grid => {
-        if(grid) grid.innerHTML = '';
+function applyFilters() {
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    const selectedTag = filterSelect.value;
+
+    const filteredCards = allCardsCache.filter(card => {
+        const matchesSearch = card.title.toLowerCase().includes(searchTerm) || 
+                              (card.tags && card.tags.some(tag => tag.toLowerCase().includes(searchTerm)));
+        const matchesTag = selectedTag === 'All' || (card.tags && card.tags.includes(selectedTag));
+        return matchesSearch && matchesTag;
     });
 
+    renderGrids(filteredCards);
+}
+
+function renderGrids(cardsToRender) {
+    // Clear grids
+    Object.values(gridMap).forEach(grid => { if(grid) grid.innerHTML = ''; });
+
+    if (cardsToRender.length === 0) {
+        if(gridMap["Post"]) gridMap["Post"].innerHTML = '<p>No matching cards found.</p>';
+        return;
+    }
+
     cardsToRender.forEach(card => {
-        const tagHTML = card.tags.map(tag => `<p>${tag}</p>`).join('');
+        const tagHTML = card.tags ? card.tags.map(tag => `<p>${tag}</p>`).join('') : '';
         
         const cardHTML = `
         <div class="card">
-            <div class="card-image">
-                <img src="${card.img}" alt="${card.title}">
-            </div>
+            <div class="card-image"><img src="${card.img}" alt="${card.title}"></div>
             <div class="card-meta">
-                <p class="card-header">${card.title}</p>
+                <span class="card-header">${card.title}</span>
                 <div class="card-tags">${tagHTML}</div>
                 <p class="card-description">${card.desc}</p>
-                <div class="stars">
-                    <i class="fa-solid fa-star"></i>
-                    <i class="fa-solid fa-star"></i>
-                    <i class="fa-solid fa-star"></i>
-                    <i class="fa-solid fa-star"></i>
+                <div class="card-actions">
+                    <i class="fa-regular fa-bookmark"></i>
+                    <div class="stars">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                    </div>
                 </div>
             </div>
         </div>`;
         
         const targetGrid = gridMap[card.category];
-        if (targetGrid) {
-            targetGrid.innerHTML += cardHTML;
-        } else {
-            gridMap["Post"].innerHTML += cardHTML;
-        }
+        if (targetGrid) targetGrid.innerHTML += cardHTML;
+        else if (gridMap["Post"]) gridMap["Post"].innerHTML += cardHTML;
+    });
+}
+
+function populateTagDropdown(cards) {
+    if (!filterSelect) return;
+    const allTags = cards.flatMap(card => card.tags || []);
+    const uniqueTags = [...new Set(allTags)];
+    filterSelect.innerHTML = '<option value="All">All Tags</option>';
+    uniqueTags.forEach(tag => {
+        const option = document.createElement('option');
+        option.value = tag; option.textContent = tag;
+        filterSelect.appendChild(option);
     });
 }
 
 
-// --- 4. LOGIC: Dashboard Page (dashboard.html) ---
+// --- 4. LOGIC: Dashboard (Admin) ---
 const dashboardBody = document.getElementById('dashboard-body');
 
 if (dashboardBody) {
-    renderDashboard();
+    loadDashboard();
 }
 
-function renderDashboard() {
-    const cards = getCards();
-    dashboardBody.innerHTML = ''; 
+async function loadDashboard() {
+    dashboardBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+    
+    try {
+        const snapshot = await db.collection(collectionName).orderBy('createdAt', 'desc').get();
+        const cards = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    if (cards.length === 0) {
-        dashboardBody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No cards found.</td></tr>';
-        return;
+        dashboardBody.innerHTML = ''; 
+        if (cards.length === 0) {
+            dashboardBody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No cards found in cloud.</td></tr>';
+            return;
+        }
+
+        cards.forEach(card => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><img src="${card.img}" alt="img"></td>
+                <td>${card.title}</td>
+                <td>${card.category}</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteCard('${card.id}')">
+                        <i class="fa-solid fa-trash"></i> Delete
+                    </button>
+                </td>
+            `;
+            dashboardBody.appendChild(row);
+        });
+    } catch (e) {
+        console.error(e);
+        dashboardBody.innerHTML = '<tr><td colspan="4">Error loading data.</td></tr>';
     }
-
-    cards.forEach(card => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td><img src="${card.img}" alt="img" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;"></td>
-            <td>${card.title}</td>
-            <td>${card.category}</td>
-            <td>
-                <button class="delete-btn" onclick="deleteCard(${card.id})" style="background: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">
-                    <i class="fa-solid fa-trash"></i> Delete
-                </button>
-            </td>
-        `;
-        dashboardBody.appendChild(row);
-    });
 }
 
-window.deleteCard = function(id) {
-    if(confirm("Are you sure you want to delete this card?")) {
-        let cards = getCards();
-        cards = cards.filter(card => card.id !== id);
-        saveCards(cards);
-        renderDashboard(); 
+// Global delete function
+window.deleteCard = async function(docId) {
+    if(confirm("Are you sure you want to delete this from the Cloud? This cannot be undone.")) {
+        try {
+            await db.collection(collectionName).doc(docId).delete();
+            alert("Deleted!");
+            loadDashboard(); // Reload table
+        } catch (error) {
+            alert("Error deleting: " + error.message);
+        }
     }
 };
