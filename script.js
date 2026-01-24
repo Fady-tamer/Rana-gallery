@@ -151,7 +151,6 @@ function renderGrids(cardsToRender) {
                 <div class="card-tags">${tagHTML}</div>
                 <p class="card-description">${card.desc}</p>
                 <div class="card-actions">
-                    <i class="fa-regular fa-bookmark"></i>
                     <div class="stars">
                         <i class="fa-solid fa-star"></i>
                         <i class="fa-solid fa-star"></i>
