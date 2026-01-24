@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artist - Add Card</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="addCard.css">
+    <link rel="icon" href="images/icn.ico" type="image/x-icon">
+</head>
+
+<body>
+
+    <header class="top-nav">
+        <a href="index.html" class="logo">
+            <img src="images/rana-logo.png" alt="">
+        </a>
+        <div class="nav-bar">
+            <a href="index.html" class="nav-icons">
+                <i class="fa-solid fa-house"></i> Home
+            </a>
+        </div>
+    </header>
+
+    <main class="add-card-container">
+        <form class="add-card-form" action="">
+            <h1>Add card</h1>
+            <label for="card-img">Card Image*</label>
+            <input type="file" id="card-img" accept="image/*" required>
+            <label for="">card title*</label>
+            <input type="text" id="card-header" required>
+            <label for="">card tags*</label>
+            <input type="text" id="card-tags" required>
+            <p>separate tags with a (-)</p>
+            <label for="">card description</label>
+            <textarea name="" id="card-description"></textarea>
+            <label for="">category*</label>
+            <select id="category">
+                <option value="Post">Post</option>
+                <option value="Artist'sStory">Artist's Story</option>
+                <option value="ArtStory">Art Story</option>
+                <option value="Country'sStory">Country's Story</option>
+                <option value="ColorsPallets">Colors Pallets</option>
+            </select>
+            <button type="submit">Add Card</button>
+        </form>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

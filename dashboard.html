@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artist - Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="icon" href="images/icn.ico" type="image/x-icon">
+</head>
+
+<body>
+
+    <header class="top-nav">
+        <a href="index.html" class="logo">
+            <img src="images/rana-logo.png" alt="">
+        </a>
+        <div class="nav-bar">
+            <a href="index.html" class="nav-icons">
+                <i class="fa-solid fa-house"></i> Home
+            </a>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+        <h1 class="handwritten-title">Manage Your Cards</h1>
+
+        <table class="dashboard-table">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Title</th>
+                    <th>category</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="dashboard-body">
+            </tbody>
+        </table>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

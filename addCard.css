@@ -1,0 +1,134 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+}
+
+:root {
+    --navy: #2F4156;
+    --teal: #567C8D;
+    --sky-blue: #C8D9E6;
+    --beige: #F5EFEB;
+    --white: #FFFFFF;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: var(--sky-blue);
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: var(--teal);
+}
+
+body {
+    margin: 0;
+    background-color: var(--white);
+    color: var(--navy);
+}
+
+.top-nav {
+    background-color: var(--sky-blue);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 2px solid var(--teal);
+}
+
+.logo img {
+    width: 30px;
+}
+
+.nav-bar {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
+
+.nav-icons {
+    font-size: 1.6rem;
+    color: var(--navy);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.nav-icons:hover {
+    color: red;
+}
+
+.add-card-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.add-card-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 500px;
+    margin: 50px auto;
+    border: 1px solid var(--teal);
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.add-card-form h1 {
+    font-size: 1.5rem;
+    color: var(--navy);
+    font-weight: bold;
+    text-align: center;
+}
+
+.add-card-form label {
+    font-size: 1.2rem;
+    color: var(--navy);
+    font-weight: bold;
+}
+
+.add-card-form input {
+    border: 1px solid var(--teal);
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.add-card-form button {
+    background-color: var(--teal);
+    color: var(--white);
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.add-card-form select {
+    padding: 10px;
+    border: 1px solid var(--teal);
+    border-radius: 5px
+}
+
+.add-card-form button:hover {
+    background-color: var(--navy);
+}
+
+@media (max-width: 768px) {
+    
+    .nav-icons {
+        font-size: 1rem;
+    }
+
+    .add-card-form {
+        margin: 20px;
+        width: 100%;
+    }
+
+}

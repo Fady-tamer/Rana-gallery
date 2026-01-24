@@ -1,0 +1,231 @@
+/* --- Reset & Base Styles --- */
+* {
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+}
+
+:root {
+    /* YOUR PALETTE */
+    --navy: #2F4156;
+    /* Main Text, Headings */
+    --teal: #567C8D;
+    /* Borders, Secondary Icons */
+    --sky-blue: #C8D9E6;
+    /* Hero Background, Hovers */
+    --beige: #F5EFEB;
+    /* Page Background */
+    --white: #FFFFFF;
+    /* Card Backgrounds */
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: var(--sky-blue);
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: var(--teal);
+}
+
+body {
+    margin: 0;
+    background-color: var(--white);
+    color: var(--navy);
+}
+
+.top-nav {
+    background-color: var(--sky-blue);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 2px solid var(--teal);
+}
+
+.logo img {
+    width: 30px;
+}
+
+.nav-bar {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
+
+.nav-icons {
+    font-size: 1.6rem;
+    color: var(--navy);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.nav-icons:hover {
+    color: red;
+}
+
+.handwritten-title {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    text-align: center;
+    font-family: "Fascinate", system-ui;
+}
+
+
+.dashboard-container {
+    max-width: 1200px;
+    margin: 50px auto;
+    padding: 20px;
+}
+
+.dashboard-table {
+    border-radius: 8px;
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--white);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-table tr {
+    padding: 15px;
+    background: var(--beige);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.dashboard-table th,
+.dashboard-table td {
+    padding: 15px;
+    text-align: left;
+    font-weight: bold;
+}
+
+.dashboard-table img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.btn-delete {
+    background: crimson;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    text-decoration: none;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+/* --- Mobile Responsive Styles --- */
+@media (max-width: 768px) {
+    .nav-icons {
+        font-size: 1rem;
+    }
+
+    .handwritten-title {
+        font-size: 1.5rem;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .dashboard-container {
+        width: 100%;
+        margin: 10px 0;
+        padding: 10px;
+        box-sizing: border-box;
+    }
+
+    /* Force Table to look like a List of Cards */
+    .dashboard-table,
+    .dashboard-table tbody,
+    .dashboard-table tr,
+    .dashboard-table td {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Hide the Table Header (Image, Title, Actions) */
+    .dashboard-table thead {
+        display: none;
+    }
+
+    .dashboard-table tr {
+        margin-bottom: 20px;
+        border: 1px solid var(--teal);
+        border-radius: 8px;
+        padding: 15px;
+        background: var(--beige);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        position: relative;
+    }
+
+    .dashboard-table td {
+        border: none;
+        padding: 5px 0;
+    }
+
+    /* Image Styling */
+    .dashboard-table td:nth-child(1) {
+        width: 70px;
+        /* Fixed width for image container */
+    }
+
+    .dashboard-table img {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        /* Circle image looks nice on mobile */
+    }
+
+    /* Title Styling */
+    .dashboard-table td:nth-child(2) {
+        font-weight: bold;
+        font-size: 1.2rem;
+        width: calc(100% - 90px);
+        /* Fill remaining space next to image */
+    }
+
+    /* Category Styling */
+    .dashboard-table td:nth-child(3) {
+        width: 100%;
+        font-size: 0.9rem;
+        color: var(--teal);
+        font-weight: bold;
+    }
+
+    /* Button Styling */
+    .dashboard-table td:last-child {
+        width: 100%;
+        text-align: right;
+        /* Push button to right */
+        margin-top: 10px;
+        border-top: 1px dashed var(--teal);
+        /* Separator line */
+        padding-top: 10px;
+    }
+
+    .delete-btn {
+        width: 100%;
+        /* Full width button on mobile */
+        padding: 12px;
+        font-size: 1rem;
+    }
+}
