@@ -33,8 +33,8 @@ if (addForm) {
             submitBtn.disabled = false; submitBtn.innerText = "Add Card";
             return;
         }
-        if (file.size > 5 * 1024 * 1024) { 
-            alert("Image too large! Please use images under 5MB.");
+        if (file.size > 10 * 1024 * 1024) { 
+            alert("Image too large! Please use images under 10MB.");
             submitBtn.disabled = false; submitBtn.innerText = "Add Card";
             return;
         }
