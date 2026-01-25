@@ -1,4 +1,3 @@
-/* --- Reset & Base Styles --- */
 * {
     margin: 0;
     padding: 0;
@@ -7,17 +6,11 @@
 }
 
 :root {
-    /* YOUR PALETTE */
     --navy: #2F4156;
-    /* Main Text, Headings */
     --teal: #567C8D;
-    /* Borders, Secondary Icons */
     --sky-blue: #C8D9E6;
-    /* Hero Background, Hovers */
     --beige: #F5EFEB;
-    /* Page Background */
     --white: #FFFFFF;
-    /* Card Backgrounds */
 }
 
 ::-webkit-scrollbar {
@@ -34,8 +27,8 @@
 }
 
 body {
-    background-color: var(--white);
     color: var(--navy);
+    background-color: var(--white);
 }
 
 .container {
@@ -44,16 +37,15 @@ body {
 }
 
 .top-nav {
-    background-color: var(--sky-blue);
+    padding: 15px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 20px;
     border-bottom: 2px solid var(--teal);
+    background-color: var(--sky-blue);
 }
 
 .logo img {
-    top: 7px;
     width: 45px;
 }
 
@@ -65,13 +57,13 @@ body {
 }
 
 .search-bar {
+    width: 50%;
+    padding: 15px 15px;
     display: flex;
     align-items: center;
-    background-color: var(--white);
-    border: 1px solid var(--teal);
     border-radius: 20px;
-    padding: 15px 15px;
-    width: 50%;
+    border: 1px solid var(--teal);
+    background-color: var(--white);
 }
 
 .search-bar i {
@@ -79,12 +71,12 @@ body {
 }
 
 .search-bar input {
+    width: 100%;
+    margin-left: 10px;
     border: none;
     outline: none;
-    background: transparent;
-    margin-left: 10px;
-    width: 100%;
     color: var(--navy);
+    background: transparent;
 }
 
 .filter-bar {
@@ -94,22 +86,22 @@ body {
 }
 
 .filter-bar select {
-    border: 1px solid var(--teal);
-    border-radius: 20px;
     padding: 10px;
+    border-radius: 20px;
+    border: 1px solid var(--teal);
 }
 
 .nav-bar {
     display: flex;
-    gap: 30px;
     align-items: center;
+    gap: 30px;
 }
 
 .nav-icons {
     font-size: 1.6rem;
-    color: var(--navy);
     text-decoration: none;
     cursor: pointer;
+    color: var(--navy);
 }
 
 .nav-icons:hover {
@@ -117,59 +109,60 @@ body {
 }
 
 .hero-banner {
-    background-color: var(--sky-blue);
     height: 400px;
-    margin: 0 20px;
-    border: 2px solid var(--teal);
     margin-top: 20px;
+    padding: 5px 3px;
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
     border-radius: 8px;
+    border: 2px solid var(--teal);
+    background-color: var(--sky-blue);
 }
 
 .hero-banner img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: fill;
+    border-radius: 8px;
+    border: 2px solid var(--teal);
 }
 
-/* --- Filter Bar --- */
 .filter-nav {
+    padding-bottom: 5px;
     display: flex;
     gap: 10px;
-    padding-bottom: 5px;
 }
 
 .pill {
-    background: var(--beige);
+    padding: 8px 20px;
+    border-radius: 20px;
+    white-space: nowrap;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
     border: 1px solid var(--teal);
     color: var(--navy);
-    border-radius: 20px;
-    padding: 8px 20px;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.3s ease;
-    text-decoration: none;
+    background: var(--beige);
 }
 
 .pill:hover {
-    background-color: var(--teal);
     color: var(--white);
+    background-color: var(--teal);
 }
 
-/* --- For You Section --- */
 .for-you-section {
     margin: 40px;
 }
 
 .handwritten-title {
-    font-size: 2.5rem;
+    font-family: "Fascinate", system-ui;
     margin-bottom: 20px;
+    font-size: 2.5rem;
     text-align: center;
     color: var(--navy);
     text-shadow: 2px 2px 0px var(--sky-blue);
-    font-family: "Fascinate", system-ui;
 }
 
 .card-grid,
@@ -183,23 +176,26 @@ body {
 }
 
 .card {
-    background-color: var(--beige);
-    border: 1px solid var(--teal);
+    max-height: 500px;
     padding: 10px;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
+    cursor: pointer;
     border-radius: 5px;
+    border: 1px solid var(--teal);
+    background-color: var(--beige);
     box-shadow: 3px 3px 0px var(--sky-blue);
 }
 
 .card-image {
-    background-color: var(--beige);
-    height: 100%;
     width: 100%;
-    border-radius: 5px;
-    overflow: hidden;
-    border: 1px solid var(--navy);
+    height: 300px;
     margin-bottom: 10px;
+    overflow: hidden;
+    border-radius: 5px;
+    border: 1px solid var(--navy);
+    background-color: var(--beige);
 }
 
 .card-image img {
@@ -215,19 +211,18 @@ body {
 }
 
 .card-header {
+    margin-bottom: 15px;
     font-size: 2rem;
     font-weight: bold;
-    margin-bottom: 15px;
     color: var(--navy);
-    font-weight: bold;
 }
 
 .card-tags {
+    margin: 5px 0;
     display: flex;
     flex-direction: row;
-    overflow-x: scroll;
     gap: 10px;
-    margin: 5px 0;
+    overflow-x: scroll;
 }
 
 .card-tags::-webkit-scrollbar {
@@ -246,27 +241,28 @@ body {
 .card-tags p {
     margin: 0;
     padding: 5px 10px;
-    border: 1px solid var(--teal);
-    border-radius: 20px;
-    color: var(--beige);
-    background-color: var(--navy);
     font-size: 1rem;
     font-weight: bold;
     text-wrap: nowrap;
+    border-radius: 20px;
+    border: 1px solid var(--teal);
+    color: var(--beige);
+    background-color: var(--navy);
 }
 
 .card-description {
-    font-size: 1rem;
-    color: var(--navy);
+    max-height: 200px;
     margin-bottom: 15px;
+    font-size: 1rem;
+    text-overflow: ellipsis;
+    color: var(--navy);
 }
 
 .card-actions {
+    margin-top: 5px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 5px;
-    color: var(--teal);
 }
 
 .card-actions i {
@@ -279,51 +275,42 @@ body {
     color: red;
 }
 
-.card-actions div i:hover {
-    color: yellow;
-}
-
-/* --- Star Rating Styles --- */
 .stars {
     display: inline-block;
 }
 
 .stars i {
-    cursor: pointer;
-    color: #ccc;
-    /* Default Gray (Empty) */
-    font-size: 1rem;
-    transition: color 0.2s;
     margin-right: 2px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    color: #888;
 }
 
 .stars i.filled {
     color: #ffc107;
-    /* Gold (Filled) */
 }
 
 .stars i:hover {
     color: #ffdb4d;
-    /* Light gold on hover */
 }
 
 
-/* --- Bottom Layout (Split) --- */
 .bottom-layout {
+    padding-top: 20px;
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 20px;
     border-top: 2px dashed var(--teal);
-    padding-top: 20px;
 }
 
 .footer {
+    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: var(--navy);
     color: var(--white);
-    padding: 20px
+    background-color: var(--navy);
 }
 
 .footer p {
@@ -398,8 +385,8 @@ body {
 
     .hero-banner {
         height: 200px;
-        /* Smaller banner for mobile */
         margin: 10px 0;
+        border-radius: 5px
     }
 
     .handwritten-title {
@@ -414,6 +401,10 @@ body {
     .ColorsPallets-grid {
         grid-template-columns: 1fr;
         gap: 20px;
+    }
+
+    .card {
+        height: fit-content;
     }
 
     .card-header {

@@ -124,11 +124,6 @@ function applyFilters() {
 function renderGrids(cardsToRender) {
     Object.values(gridMap).forEach(grid => { if(grid) grid.innerHTML = ''; });
 
-    if (cardsToRender.length === 0) {
-        if(gridMap["Post"]) gridMap["Post"].innerHTML = '<p style="text-align:center; width:100%;">No matching cards found.</p>';
-        return;
-    }
-
     cardsToRender.forEach(card => {
         const tagHTML = card.tags ? card.tags.map(tag => `<p>${tag}</p>`).join('') : '';
 
@@ -149,7 +144,7 @@ function renderGrids(cardsToRender) {
         }
         
         // Optional: Show count (e.g., "(12 votes)")
-        const voteText = card.ratingCount ? `<span style="font-size:0.8rem; color:#888;">(${card.ratingCount})</span>` : '';
+        const voteText = card.ratingCount ? `<span">(${card.ratingCount})</span>` : '';
 
         const cardHTML = `
         <div class="card">
