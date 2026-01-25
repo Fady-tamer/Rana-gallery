@@ -15,27 +15,35 @@ const db = firebase.firestore();
 const collectionName = "cards"; 
 
 // --- 2. MODAL SETUP ---
-document.body.insertAdjacentHTML('beforeend', `
-    <div id="card-modal" class="modal-overlay" onclick="closeCard(event)">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <span class="close-modal-btn" onclick="closeCard(event)">&times;</span>
-            <div id="modal-body"></div>
+// Inject Modal HTML if it doesn't exist
+if (!document.getElementById('card-modal')) {
+    document.body.insertAdjacentHTML('beforeend', `
+        <div id="card-modal" class="modal-overlay" onclick="closeCard(event)">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <span class="close-modal-btn" onclick="closeCard(event)">
+                    <i class="fa-solid fa-xmark"></i>
+                </span>
+                <div id="modal-body"></div>
+            </div>
         </div>
-    </div>
-`);
+    `);
+}
 
 const modalOverlay = document.getElementById('card-modal');
 const modalBody = document.getElementById('modal-body');
 
-// --- 3. LOGIC: Add Card Page ---
-const addForm = document.querySelector('.add-card-form');
+// --- 3. LOGIC: Add Card Page (Updated for new Design) ---
+const addForm = document.querySelector('.card-form'); // Updated Selector
 
 if (addForm) {
+    // A. Submit Logic
     addForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const submitBtn = addForm.querySelector('button');
+        const originalBtnText = submitBtn.innerHTML;
+        
         submitBtn.disabled = true;
-        submitBtn.innerText = "Compressing & Uploading...";
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading...';
 
         const fileInput = document.getElementById('card-img');
         const rawTitle = document.getElementById('card-header').value;
@@ -43,7 +51,8 @@ if (addForm) {
 
         if (!file) {
             alert("Please select an image!");
-            submitBtn.disabled = false; submitBtn.innerText = "Add Card";
+            submitBtn.disabled = false; 
+            submitBtn.innerHTML = originalBtnText;
             return;
         }
 
@@ -60,7 +69,7 @@ if (addForm) {
                 category: document.getElementById('category').value,
                 ratingSum: 0,
                 ratingCount: 0,
-                likes: 0 // Start with 0 likes
+                likes: 0
             };
 
             await db.collection(collectionName).add(newCard);
@@ -71,9 +80,29 @@ if (addForm) {
             console.error("Error:", error);
             alert("Error: " + error.message);
             submitBtn.disabled = false;
-            submitBtn.innerText = "Add Card";
+            submitBtn.innerHTML = originalBtnText;
         }
     });
+
+    // B. File Upload Visual Logic (Shows filename on selection)
+    const fileInput = document.getElementById('card-img');
+    const fileVisualText = document.querySelector('.file-upload-visual span');
+    const fileVisualIcon = document.querySelector('.file-upload-visual i');
+
+    if (fileInput && fileVisualText) {
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                fileVisualText.textContent = this.files[0].name;
+                fileVisualText.style.color = '#2F4156'; 
+                fileVisualText.style.fontWeight = '600';
+                
+                if(fileVisualIcon) {
+                    fileVisualIcon.className = 'fa-solid fa-check';
+                    fileVisualIcon.style.color = '#567C8D'; 
+                }
+            }
+        });
+    }
 }
 
 function compressImage(file) {
@@ -109,8 +138,18 @@ const gridMap = {
 };
 
 const searchInput = document.querySelector('.search-bar input');
-const filterSelect = document.querySelector('.filter-bar select');
+// UPDATED: Selector matches the new HTML class 'filter-select'
+const filterSelect = document.querySelector('.filter-select'); 
 let allCardsCache = []; 
+
+// Pill Navigation Active State
+const pills = document.querySelectorAll('.pill');
+pills.forEach(pill => {
+    pill.addEventListener('click', function() {
+        pills.forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
 
 if (gridMap["Post"]) {
     loadCards(); 
@@ -129,11 +168,18 @@ async function loadCards() {
 
 function applyFilters() {
     const searchTerm = searchInput.value.toLowerCase().trim();
-    const selectedTag = filterSelect.value;
+    // Convert selected value to lowercase for comparison
+    const selectedTag = filterSelect.value.toLowerCase(); 
+
     const filteredCards = allCardsCache.filter(card => {
+        // Search logic
         const matchesSearch = card.title.toLowerCase().includes(searchTerm) || 
                               (card.tags && card.tags.some(tag => tag.toLowerCase().includes(searchTerm)));
-        const matchesTag = selectedTag === 'All' || (card.tags && card.tags.includes(selectedTag));
+        
+        // Filter logic (Updated for Case Insensitivity)
+        const matchesTag = selectedTag === 'all' || 
+                           (card.tags && card.tags.some(t => t.toLowerCase() === selectedTag));
+        
         return matchesSearch && matchesTag;
     });
     renderGrids(filteredCards);
@@ -143,14 +189,15 @@ function renderGrids(cardsToRender) {
     Object.values(gridMap).forEach(grid => { if(grid) grid.innerHTML = ''; });
 
     if (cardsToRender.length === 0) {
-        if(gridMap["Post"]) gridMap["Post"].innerHTML = '<p style="text-align:center;">No matching cards found.</p>';
+        if(gridMap["Post"]) gridMap["Post"].innerHTML = '<p style="text-align:center; color:#888; grid-column:1/-1;">No matching art found.</p>';
         return;
     }
 
     cardsToRender.forEach(card => {
+        // Tag HTML generation
         const tagHTML = card.tags ? card.tags.map(tag => `<p>${tag}</p>`).join('') : '';
         
-        // --- RATING LOGIC ---
+        // Ratings logic
         let averageRating = 0;
         if (card.ratingCount && card.ratingCount > 0) averageRating = Math.round(card.ratingSum / card.ratingCount);
         else if (card.rating) averageRating = card.rating;
@@ -162,25 +209,24 @@ function renderGrids(cardsToRender) {
         }
         const voteText = card.ratingCount ? `<span style="font-size:0.8rem; color:#888;">(${card.ratingCount})</span>` : '';
 
-        // --- HEART LOGIC (NEW) ---
-        // Check local storage to see if THIS user liked the card
+        // Likes logic
         const isLiked = localStorage.getItem('liked_' + card.id) === 'true';
-        const heartClass = isLiked ? 'fa-solid fa-heart liked' : 'fa-regular fa-heart'; // Solid if liked, Outline if not
+        const heartClass = isLiked ? 'fa-solid fa-heart liked' : 'fa-regular fa-heart'; 
         const likeCount = card.likes || 0;
 
+        // UPDATED: Card HTML Structure to match new CSS
         const cardHTML = `
         <div class="card" onclick="openCard('${card.id}')">
-            <div class="card-image"><img src="${card.img}" alt="${card.title}"></div>
+            <div class="card-image"><img src="${card.img}" alt="${card.title}" loading="lazy"></div>
             <div class="card-meta">
                 <span class="card-header">${card.title}</span>
                 <div class="card-tags">${tagHTML}</div>
                 <p class="card-description">${card.desc}</p>
                 <div class="card-actions">
-                    <div style="display:flex; align-items:center; gap:5px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
                         <i class="${heartClass}" onclick="event.stopPropagation(); toggleLike('${card.id}')"></i>
-                        <span style="font-size:0.9rem;">${likeCount}</span>
+                        <span style="font-size:0.9rem; color:#666;">${likeCount}</span>
                     </div>
-
                     <div class="stars">${starsHTML} ${voteText}</div>
                 </div>
             </div>
@@ -194,12 +240,32 @@ function renderGrids(cardsToRender) {
 
 function populateTagDropdown(cards) {
     if (!filterSelect) return;
+
+    // 1. Get all tags from all cards
     const allTags = cards.flatMap(card => card.tags || []);
-    const uniqueTags = [...new Set(allTags)];
+
+    // 2. Deduplicate ignoring case (e.g. "Art" == "art")
+    const seen = new Set();
+    const uniqueTags = [];
+    
+    allTags.forEach(tag => {
+        if (!tag) return; // Skip empty tags
+        const lower = tag.trim().toLowerCase();
+        if (!seen.has(lower)) {
+            seen.add(lower);
+            uniqueTags.push(tag.trim()); // Keep the original casing of the first one found
+        }
+    });
+
+    // 3. Sort alphabetically
+    uniqueTags.sort((a, b) => a.localeCompare(b));
+
+    // 4. Render options
     filterSelect.innerHTML = '<option value="All">All Tags</option>';
     uniqueTags.forEach(tag => {
         const option = document.createElement('option');
-        option.value = tag; option.textContent = tag;
+        option.value = tag; 
+        option.textContent = tag;
         filterSelect.appendChild(option);
     });
 }
@@ -209,13 +275,17 @@ window.openCard = function(cardId) {
     const card = allCardsCache.find(c => c.id === cardId);
     if (!card) return;
 
-    const tagHTML = card.tags ? card.tags.map(tag => `<span style="background:var(--navy); color:white; padding:5px 10px; border-radius:15px; margin-right:5px; font-size:0.9rem;">${tag}</span>`).join('') : '';
+    // Use pill style for tags in modal
+    const tagHTML = card.tags ? card.tags.map(tag => 
+        `<span style="background:var(--sky-blue); color:var(--navy); padding:5px 12px; border-radius:15px; margin-right:5px; font-size:0.85rem; font-weight:600;">${tag}</span>`
+    ).join('') : '';
     
     modalBody.innerHTML = `
         <img src="${card.img}" alt="${card.title}">
-        <h2 style="font-family:'Fascinate'; font-size:2.5rem; color:var(--navy); margin-bottom:10px;">${card.title}</h2>
-        <div style="margin-bottom:20px; display:flex; flex-wrap:wrap; gap:5px;">${tagHTML}</div>
-        <p style="font-size:1.1rem; line-height:1.6; white-space: pre-wrap;">${card.desc}</p>
+        <h2 style="font-family:'Fascinate', cursive; font-size:2.5rem; color:var(--navy); margin-bottom:10px;">${card.title}</h2>
+        <div style="margin-bottom:20px; display:flex; flex-wrap:wrap; gap:5px;">
+            ${tagHTML}</div>
+        <p style="font-size:1.05rem; line-height:1.7; color:#444; white-space: pre-wrap;">${card.desc}</p>
     `;
 
     modalOverlay.style.display = 'flex';
@@ -223,13 +293,13 @@ window.openCard = function(cardId) {
 };
 
 window.closeCard = function(e) {
-    if (e.target === modalOverlay || e.target.classList.contains('close-modal-btn')) {
+    if (e.target === modalOverlay || e.target.closest('.close-modal-btn')) {
         modalOverlay.style.display = 'none';
         document.body.style.overflow = 'auto'; 
     }
 };
 
-// --- 6. GLOBAL ACTIONS ---
+// --- 6. DASHBOARD ACTIONS (Admin) ---
 const dashboardBody = document.getElementById('dashboard-body');
 if (dashboardBody) { loadDashboard(); }
 
@@ -240,13 +310,92 @@ async function loadDashboard() {
         const cards = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         dashboardBody.innerHTML = ''; 
         if (cards.length === 0) { dashboardBody.innerHTML = '<tr><td colspan="4">No cards found.</td></tr>'; return; }
+        
         cards.forEach(card => {
             const row = document.createElement('tr');
-            row.innerHTML = `<td><img src="${card.img}" alt="img"></td><td>${card.title}</td><td>${card.category}</td><td><button class="delete-btn" onclick="deleteCard('${card.id}')">Delete</button></td>`;
+            row.innerHTML = `
+                <td><img src="${card.img}" alt="img" style="width:50px; height:50px; object-fit:cover; border-radius:5px;"></td>
+                <td>${card.title}</td>
+                <td>${card.category}</td>
+                <td>
+                    <button class="edit-btn" onclick="openEditModal('${card.id}')"><i class="fa-solid fa-pen"></i></button>
+                    <button class="delete-btn" onclick="deleteCard('${card.id}')"><i class="fa-solid fa-trash"></i></button>
+                </td>
+            `;
             dashboardBody.appendChild(row);
         });
     } catch (e) { console.error(e); }
 }
+
+// --- 7. GLOBAL ACTIONS (Edit, Delete, Like, Rate) ---
+
+window.openEditModal = async function(cardId) {
+    try {
+        const doc = await db.collection(collectionName).doc(cardId).get();
+        if(!doc.exists) return alert("Card not found!");
+
+        const card = doc.data();
+        const tagsString = card.tags ? card.tags.join('-') : '';
+
+        // Inject Form into Modal
+        modalBody.innerHTML = `
+            <h2 style="text-align:center; margin-bottom:15px; font-family:'Poppins', sans-serif;">Edit Card</h2>
+            <div class="edit-form" style="display:flex; flex-direction:column; gap:10px;">
+                <label style="font-weight:600;">Title</label>
+                <input type="text" id="edit-title" value="${card.title}" style="padding:8px; border:1px solid #ccc; border-radius:5px;">
+                
+                <label style="font-weight:600;">Tags (separate with -)</label>
+                <input type="text" id="edit-tags" value="${tagsString}" style="padding:8px; border:1px solid #ccc; border-radius:5px;">
+                
+                <label style="font-weight:600;">Category</label>
+                <select id="edit-category" style="padding:8px; border:1px solid #ccc; border-radius:5px;">
+                    <option value="Post" ${card.category === 'Post' ? 'selected' : ''}>Post</option>
+                    <option value="Artist'sStory" ${card.category === "Artist'sStory" ? 'selected' : ''}>Artist's Story</option>
+                    <option value="ArtStory" ${card.category === 'ArtStory' ? 'selected' : ''}>Art Story</option>
+                    <option value="Country'sStory" ${card.category === "Country'sStory" ? 'selected' : ''}>Country's Story</option>
+                    <option value="ColorsPallets" ${card.category === 'ColorsPallets' ? 'selected' : ''}>Colors Pallets</option>
+                </select>
+
+                <label style="font-weight:600;">Description</label>
+                <textarea id="edit-desc" rows="5" style="padding:8px; border:1px solid #ccc; border-radius:5px;">${card.desc}</textarea>
+
+                <button onclick="saveEdit('${cardId}')" style="margin-top:10px; padding:10px; background:var(--teal); color:white; border:none; border-radius:5px; cursor:pointer;">Save Changes</button>
+            </div>
+        `;
+        
+        modalOverlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; 
+
+    } catch(e) { console.error(e); alert("Error opening edit."); }
+};
+
+window.saveEdit = async function(cardId) {
+    const newTitle = document.getElementById('edit-title').value;
+    const newTags = document.getElementById('edit-tags').value.split('-').map(t => t.trim()).filter(t => t);
+    const newCategory = document.getElementById('edit-category').value;
+    const newDesc = document.getElementById('edit-desc').value;
+
+    try {
+        await db.collection(collectionName).doc(cardId).update({
+            title: newTitle,
+            tags: newTags,
+            category: newCategory,
+            desc: newDesc
+        });
+        
+        alert("Saved!");
+        modalOverlay.style.display = 'none'; 
+        document.body.style.overflow = 'auto'; 
+        
+        // Refresh appropriate view
+        if(dashboardBody) loadDashboard();
+        if(allCardsCache.length > 0) loadCards();
+
+    } catch(e) {
+        console.error(e);
+        alert("Error saving: " + e.message);
+    }
+};
 
 window.rateCard = async function(cardId, userRating) {
     try {
@@ -262,15 +411,13 @@ window.rateCard = async function(cardId, userRating) {
             if (cardIndex > -1) {
                 allCardsCache[cardIndex].ratingSum = newSum;
                 allCardsCache[cardIndex].ratingCount = newCount;
-                applyFilters(); 
+                renderGrids(allCardsCache); // Refresh display to show new stars
             }
         }
     } catch (error) { console.error(error); alert("Could not save rating."); }
 };
 
-// NEW: Toggle Like Function
 window.toggleLike = async function(cardId) {
-    // 1. Check if user already liked this card
     const storageKey = 'liked_' + cardId;
     const hasLiked = localStorage.getItem(storageKey) === 'true';
 
@@ -283,28 +430,31 @@ window.toggleLike = async function(cardId) {
         let newLikes;
 
         if (hasLiked) {
-            // Unlike: Decrease count
             newLikes = Math.max(0, currentLikes - 1);
-            localStorage.removeItem(storageKey); // Forget user
+            localStorage.removeItem(storageKey); 
         } else {
-            // Like: Increase count
             newLikes = currentLikes + 1;
-            localStorage.setItem(storageKey, 'true'); // Remember user
+            localStorage.setItem(storageKey, 'true'); 
         }
 
-        // 2. Save to Cloud
         await cardRef.update({ likes: newLikes });
 
-        // 3. Update Screen Instantly
         const cardIndex = allCardsCache.findIndex(c => c.id === cardId);
         if (cardIndex > -1) {
             allCardsCache[cardIndex].likes = newLikes;
-            applyFilters(); // Re-render grid to show Red Heart or Empty Heart
+            // Only re-render if necessary to update UI (optional for better performance)
+            const cardElement = document.querySelector(`.card[onclick="openCard('${cardId}')"]`);
+            if(cardElement) {
+                const likeCountSpan = cardElement.querySelector('.card-actions span');
+                const heartIcon = cardElement.querySelector('.fa-heart');
+                if(likeCountSpan) likeCountSpan.textContent = newLikes;
+                if(heartIcon) {
+                    heartIcon.className = hasLiked ? 'fa-regular fa-heart' : 'fa-solid fa-heart liked';
+                }
+            }
         }
 
-    } catch (error) {
-        console.error("Error toggling like:", error);
-    }
+    } catch (error) { console.error("Error toggling like:", error); }
 };
 
 window.deleteCard = async function(docId) {

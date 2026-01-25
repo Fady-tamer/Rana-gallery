@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Artist - Add Card</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="addCard.css">
     <link rel="icon" href="images/icn.ico" type="image/x-icon">
@@ -16,36 +17,67 @@
 
     <header class="top-nav">
         <a href="index.html" class="logo">
-            <img src="images/rana-logo.png" alt="">
+            <img src="images/rana-logo.png" alt="Logo">
         </a>
         <div class="nav-bar">
-            <a href="index.html" class="nav-icons">
+            <a href="index.html" class="nav-link">
                 <i class="fa-solid fa-house"></i> Home
             </a>
         </div>
     </header>
 
-    <main class="add-card-container">
-        <form class="add-card-form" action="">
-            <h1>Add card</h1>
-            <label for="card-img">Card Image*</label>
-            <input type="file" id="card-img" accept="image/*" required>
-            <label for="">card title*</label>
-            <input type="text" id="card-header" required>
-            <label for="">card tags*</label>
-            <input type="text" id="card-tags" required>
-            <p>separate tags with a (-)</p>
-            <label for="">card description</label>
-            <textarea name="" id="card-description"></textarea>
-            <label for="">category*</label>
-            <select id="category">
-                <option value="Post">Post</option>
-                <option value="Artist'sStory">Artist's Story</option>
-                <option value="ArtStory">Art Story</option>
-                <option value="Country'sStory">Country's Story</option>
-                <option value="ColorsPallets">Colors Pallets</option>
-            </select>
-            <button type="submit">Add Card</button>
+    <main class="main-container">
+        <form class="card-form" action="">
+            <div class="form-header">
+                <h1>Create New Card</h1>
+                <p>Share your art with the world</p>
+            </div>
+
+            <div class="form-group file-area">
+                <label for="card-img">Card Image*</label>
+                <div class="file-upload-wrapper">
+                    <input type="file" id="card-img" accept="image/*" required>
+                    <div class="file-upload-visual">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span>Click to upload image</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="card-header">Card Title*</label>
+                <input type="text" id="card-header" placeholder="e.g. The Starry Night" required>
+            </div>
+
+            <div class="form-group">
+                <label for="category">Category*</label>
+                <div class="select-wrapper">
+                    <select id="category" required>
+                        <option value="" disabled selected>Select a category</option>
+                        <option value="Post">Post</option>
+                        <option value="Artist'sStory">Artist's Story</option>
+                        <option value="ArtStory">Art Story</option>
+                        <option value="Country'sStory">Country's Story</option>
+                        <option value="ColorsPallets">Colors Pallets</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="card-tags">Tags*</label>
+                <input type="text" id="card-tags" placeholder="e.g. abstract-blue-mood" required>
+                <small class="helper-text">Separate tags with a hyphen (-)</small>
+            </div>
+
+            <div class="form-group">
+                <label for="card-description">Description</label>
+                <textarea id="card-description" rows="4" placeholder="Tell the story behind this card..."></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                <i class="fa-solid fa-plus"></i> Add Card
+            </button>
         </form>
     </main>
 

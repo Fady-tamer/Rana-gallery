@@ -5,9 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Artist - Dashboard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fascinate&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="dashboard.css">
     <link rel="icon" href="images/icn.ico" type="image/x-icon">
+
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 </head>
@@ -15,32 +22,58 @@
 <body>
 
     <header class="top-nav">
-        <a href="index.html" class="logo">
-            <img src="images/rana-logo.png" alt="">
-        </a>
-        <div class="nav-bar">
-            <a href="index.html" class="nav-icons">
-                <i class="fa-solid fa-house"></i> Home
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <img src="images/rana-logo.png" alt="Logo">
             </a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-item">
+                    <i class="fa-solid fa-house"></i> Home
+                </a>
+                <a href="addCard.html" class="nav-item active">
+                    <i class="fa-solid fa-plus"></i> Add New
+                </a>
+            </div>
         </div>
     </header>
 
     <main class="dashboard-container">
-        <h1 class="handwritten-title">Manage Your Cards</h1>
+        <div class="dashboard-header">
+            <div>
+                <h1 class="page-title">Manage Content</h1>
+                <p class="subtitle">Edit or remove your portfolio items</p>
+            </div>
+            <div class="dashboard-actions">
+                <a href="addCard.html" class="primary-btn">
+                    <i class="fa-solid fa-plus"></i> Create New
+                </a>
+            </div>
+        </div>
 
-        <table class="dashboard-table">
-            <thead>
-                <tr>
-                    <th>Image</th>
-                    <th>Title</th>
-                    <th>category</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="dashboard-body">
-            </tbody>
-        </table>
+        <div class="table-wrapper">
+            <table class="dashboard-table">
+                <thead>
+                    <tr>
+                        <th>Artwork</th>
+                        <th>Details</th>
+                        <th>Category</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="dashboard-body">
+                </tbody>
+            </table>
+        </div>
     </main>
+
+    <div id="card-modal" class="modal-overlay" onclick="closeCard(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-modal-btn" onclick="closeCard(event)">
+                <i class="fa-solid fa-xmark"></i>
+            </span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
