@@ -279,10 +279,35 @@ window.openCard = function(cardId) {
     const tagHTML = card.tags ? card.tags.map(tag => 
         `<span style="background:var(--sky-blue); color:var(--navy); padding:5px 12px; border-radius:15px; margin-right:5px; font-size:0.85rem; font-weight:600;">${tag}</span>`
     ).join('') : '';
+
+    let averageRating = 0;
+        if (card.ratingCount && card.ratingCount > 0) averageRating = Math.round(card.ratingSum / card.ratingCount);
+        else if (card.rating) averageRating = card.rating;
+
+        let starsHTML = '';
+        for (let i = 1; i <= 5; i++) {
+            const colorClass = i <= averageRating ? 'filled' : '';
+            starsHTML += `<i class="fa-solid fa-star ${colorClass}" onclick="event.stopPropagation(); rateCard('${card.id}', ${i})"></i>`;
+        }
+        const voteText = card.ratingCount ? `<span style="font-size:0.8rem; color:#888;">(${card.ratingCount})</span>` : '';
+
+        // Likes logic
+        const isLiked = localStorage.getItem('liked_' + card.id) === 'true';
+        const heartClass = isLiked ? 'fa-solid fa-heart liked' : 'fa-regular fa-heart'; 
+        const likeCount = card.likes || 0;
     
     modalBody.innerHTML = `
         <img src="${card.img}" alt="${card.title}">
-        <h2 style="font-family:'Fascinate', cursive; font-size:2.5rem; color:var(--navy); margin-bottom:10px;">${card.title}</h2>
+        <div class="modal-header">
+            <h2 style="font-family:'Fascinate', cursive; font-size:2.5rem; color:var(--navy);">${card.title}</h2>
+            <div class="card-actions">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <i class="${heartClass}" onclick="event.stopPropagation(); toggleLike('${card.id}')"></i>
+                    <span style="font-size:0.9rem; color:#666;">${likeCount}</span>
+                </div>
+                <div class="stars">${starsHTML} ${voteText}</div>
+            </div>
+        </div>
         <div style="margin-bottom:20px; display:flex; flex-wrap:wrap; gap:5px;">
             ${tagHTML}</div>
         <p style="font-size:1.05rem; line-height:1.7; color:#444; white-space: pre-wrap;">${card.desc}</p>
