@@ -34,3 +34,6 @@ Rana-gallery/
 ├── script.js           # Main application logic
 ├── images/             # Folder containing image assets
 └── README.md           # Project documentation
+```
+## 👤 Author
+- Fady Tamer — [LinkedIn](https://linkedin.com/in/fady-tamer) · [Portfolio](https://fady-tamer-portfolio.vercel.app)
